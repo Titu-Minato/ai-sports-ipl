@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>{{ team }} - Recommendations</title>
+</head>
+
+<body>
+    <h2>Top Players for {{ team }} in {{ season }}</h2>
+
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>Player</th>
+            <th>Predicted Fantasy Points</th>
+        </tr>
+        {% for p in players %}
+        <tr>
+            <td>{{ p.player_name }}</td>
+            <td>{{ p.predicted_points }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <a href="/">Back</a>
+</body>
+
+</html>
