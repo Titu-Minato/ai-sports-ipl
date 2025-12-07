@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}AI Sports - IPL Teams{% endblock %}
+
+{% block content %}
+<section class="teams-section">
+    <div class="teams-header-row">
+        <div>
+            <h2 class="teams-heading">Select your IPL team</h2>
+            <p class="teams-note">
+                We’ll show you AI-powered insights: form, key players, and recommended fantasy XI.
+            </p>
+        </div>
+    </div>
+
+    <div class="teams-grid">
+        {% for team in teams %}
+        <a href="{{ url_for('team_detail', team_code=team.code) }}" class="team-card">
+            <div class="team-logo-wrap">
+                <img src="{{ url_for('static', filename='logos/' ~ team.logo) }}" alt="{{ team.name }} logo"
+                    class="team-logo">
+            </div>
+            <div class="team-name">
+                {{ team.name }}
+                <span class="team-short">{{ team.code }}</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

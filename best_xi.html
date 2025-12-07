@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Best XI - {{ season }}</title>
+</head>
+
+<body>
+    <h2>Best XI for {{ season }}</h2>
+
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>#</th>
+            <th>Player</th>
+            <th>Team</th>
+            <th>Predicted Points</th>
+        </tr>
+        {% for p in players %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ p.player_name }}</td>
+            <td>{{ p.team }}</td>
+            <td>{{ p.predicted_points }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <a href="/">Back</a>
+</body>
+
+</html>

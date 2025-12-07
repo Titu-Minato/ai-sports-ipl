@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{ team.name }} – AI Insights</title>
+    <!-- adjust path if your css is elsewhere -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <div class="page-shell">
+
+        <!-- Back link -->
+        <a href="{{ url_for('home') }}" class="back-link">← Back</a>
+
+        <!-- MAIN TEAM PAGE WRAPPER -->
+        <div class="team-page">
+
+            <!-- HERO SECTION -->
+            <section class="team-hero">
+                <div class="team-hero-main">
+                    <div class="team-hero-logo">
+                        <img src="{{ url_for('static', filename='logos/' ~ team.logo) }}" alt="{{ team.name }} logo">
+                    </div>
+                    <div>
+                        <div class="team-code-pill">
+                            {{ team.code }}
+                        </div>
+                        <h1 class="team-hero-title">{{ team.name }}</h1>
+                        <p class="team-hero-sub">
+                            Data-driven insights & AI Best XI for recent IPL seasons.
+                        </p>
+                        <div class="team-hero-tags">
+                            <span class="team-tag">AI powered</span>
+                            <span class="team-tag">Fantasy focus</span>
+                            <span class="team-tag">Last 2 seasons</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="team-hero-actions">
+                    <button class="primary-pill-btn" type="button">
+                        🔁 Refresh XI
+                    </button>
+                    <button class="ghost-pill-btn" type="button">
+                        📊 Export stats (coming soon)
+                    </button>
+                </div>
+            </section>
+
+            <!-- CONTENT GRID: LEFT = INSIGHTS, RIGHT = BEST XI -->
+            <section class="team-content-grid">
+
+                <!-- LEFT: SNAPSHOT + STYLE -->
+                <div class="team-card">
+                    <h2 class="card-title">Team Snapshot</h2>
+                    <p class="card-sub">
+                        Quick view of {{ team.name }} leaders from the most recent seasons.
+                    </p>
+
+                    {% if insights %}
+                    <div class="snapshot-grid">
+                        <div class="snapshot-item">
+                            <div class="snapshot-label">Top Batting Avg</div>
+                            <div class="snapshot-value">
+                                {{ insights.top_avg_batsman.player_name }}
+                                ({{ insights.top_avg_batsman.average }})
+                            </div>
+                        </div>
+                        <div class="snapshot-item">
+                            <div class="snapshot-label">Highest Run Scorer</div>
+                            <div class="snapshot-value">
+                                {{ insights.top_run_scorer.player_name }}
+                                ({{ insights.top_run_scorer.runs }} runs)
+                            </div>
+                        </div>
+                        <div class="snapshot-item">
+                            <div class="snapshot-label">Top Wicket Taker</div>
+                            <div class="snapshot-value">
+                                {{ insights.top_wicket_taker.player_name }}
+                                ({{ insights.top_wicket_taker.wickets }} wkts)
+                            </div>
+                        </div>
+                        <div class="snapshot-item">
+                            <div class="snapshot-label">Best Economy</div>
+                            <div class="snapshot-value">
+                                {{ insights.best_economy.player_name }}
+                                ({{ insights.best_economy.economy }} econ)
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p>No insight data for this team yet.</p>
+                    {% endif %}
+
+                    <ul class="style-list">
+                        <li>Recent form heavily weighted.</li>
+                        <li>All-rounders get extra value in T20.</li>
+                        <li>Bowlers balanced on wickets + economy.</li>
+                    </ul>
+
+                    <div class="form-meter">
+                        <div class="form-label">Overall form indicator (dummy for now)</div>
+                        <div class="form-bar">
+                            <div class="form-bar-fill"></div>
+                        </div>
+                        <div class="form-text">
+                            Later we can calculate this from last 5 matches, win rate, etc.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT: AI BEST XI TABLE -->
+                <div class="team-card">
+                    <h2 class="card-title">AI Recommended Best XI</h2>
+                    <p class="card-sub">
+                        Built using predicted fantasy score / points for each player.
+                    </p>
+
+                    {% if model_xi %}
+                    <div class="table-wrapper">
+                        <table class="players-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Player</th>
+                                    <th>Role</th>
+                                    <th>Predicted Score</th>
+                                    <th>C/VC</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in model_xi %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>
+                                        {{ p.player_name }}
+                                        {% if p.is_captain %}
+                                        <span class="badge c-badge">C</span>
+                                        {% elif p.is_vice_captain %}
+                                        <span class="badge vc-badge">VC</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="role-tag role-{{ p.role|lower|replace(' ', '-') }}">
+                                            {{ p.role }}
+                                        </span>
+                                    </td>
+                                    <td>{{ "%.2f"|format(p.pred_score) }}</td>
+                                    <td>
+                                        {% if p.is_captain %}
+                                        Captain
+                                        {% elif p.is_vice_captain %}
+                                        Vice-Captain
+                                        {% else %}
+                                        –
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="hint-box" style="margin-top: 10px;">
+                        Captain (C) = highest <strong>captain score</strong> (predicted fantasy + role bonus).<br>
+                        Vice-Captain (VC) = second-best captain score. Later we can tune this with risk profile,
+                        venue, and opposition.
+                    </div>
+                    {% else %}
+                    <p>No Best XI could be generated (not enough data).</p>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- OPTIONAL: INSIGHT CARDS ROW BELOW -->
+            <section class="insights-section">
+                <h2>Last 2 Seasons – Key Leaders</h2>
+                <div class="grid-4">
+                    <div class="info-card">
+                        <h3>Top Batting Avg</h3>
+                        <p class="player-name">{{ insights.top_avg_batsman.player_name }}</p>
+                        <p class="metric">Avg: {{ insights.top_avg_batsman.average }}</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>Highest Run Scorer</h3>
+                        <p class="player-name">{{ insights.top_run_scorer.player_name }}</p>
+                        <p class="metric">Runs: {{ insights.top_run_scorer.runs }}</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>Top Wicket Taker</h3>
+                        <p class="player-name">{{ insights.top_wicket_taker.player_name }}</p>
+                        <p class="metric">Wkts: {{ insights.top_wicket_taker.wickets }}</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>Best Economy</h3>
+                        <p class="player-name">{{ insights.best_economy.player_name }}</p>
+                        <p class="metric">Econ: {{ insights.best_economy.economy }}</p>
+                    </div>
+                </div>
+                <p class="hint-text">
+                    * Later we can filter by specific season, venue or opponent.
+                </p>
+            </section>
+
+        </div> <!-- /.team-page -->
+
+    </div> <!-- /.page-shell -->
+</body>
+
+</html>
